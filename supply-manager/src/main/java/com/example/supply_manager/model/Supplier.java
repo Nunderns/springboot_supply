@@ -1,5 +1,6 @@
 package com.example.supply_manager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.util.List;
@@ -21,6 +22,7 @@ public class Supplier {
     private String notes;
 
     @OneToMany(mappedBy = "supplier", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private List<PurchaseOrder> purchaseOrders = new java.util.ArrayList<>();
 
     // Helper methods for bidirectional relationship
