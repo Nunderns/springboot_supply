@@ -64,8 +64,8 @@ const PurchaseFormModal = ({ isOpen, onClose, onSubmit, initialData }: PurchaseF
         setSuppliers(suppliersList);
         setFilteredSuppliers(suppliersList);
       } else {
-        const response = await supplierService.getAll(0, 1000);
-        suppliersData = response.content || [];
+        suppliersData = await supplierService.getAll(0, 1000);
+        // A API retorna um array diretamente, não um objeto com content
         const suppliersList = Array.isArray(suppliersData) ? suppliersData : [];
         setSuppliers(suppliersList);
         setFilteredSuppliers(suppliersList);
@@ -178,7 +178,7 @@ const PurchaseFormModal = ({ isOpen, onClose, onSubmit, initialData }: PurchaseF
         setFormData({
           ...initialData,
           supplier: supplierId as number,
-          items: initialData.items.map(normalizePurchaseItem)
+          items: (initialData.items || []).map(normalizePurchaseItem)
         });
 
         // Set supplier search text if supplier is an object
@@ -283,7 +283,7 @@ const PurchaseFormModal = ({ isOpen, onClose, onSubmit, initialData }: PurchaseF
 
     setFormData(prev => ({
       ...prev,
-      items: [...prev.items, newItem],
+      items: [...(prev.items || []), newItem],
       total: prev.total + newItem.total
     }));
 
@@ -295,10 +295,10 @@ const PurchaseFormModal = ({ isOpen, onClose, onSubmit, initialData }: PurchaseF
   };
 
   const handleRemoveItem = (index: number) => {
-    const itemToRemove = formData.items[index];
+    const itemToRemove = formData.items?.[index];
     setFormData(prev => ({
       ...prev,
-      items: prev.items.filter((_, i) => i !== index),
+      items: (prev.items || []).filter((_, i) => i !== index),
       total: prev.total - (itemToRemove?.total || 0)
     }));
   };
@@ -314,7 +314,7 @@ const PurchaseFormModal = ({ isOpen, onClose, onSubmit, initialData }: PurchaseF
         throw new Error('Por favor, selecione um fornecedor');
       }
 
-      if (formData.items.length === 0) {
+      if ((formData.items || []).length === 0) {
         throw new Error('Adicione pelo menos um item à compra');
       }
 
@@ -322,7 +322,7 @@ const PurchaseFormModal = ({ isOpen, onClose, onSubmit, initialData }: PurchaseF
       const submissionData = {
         ...formData,
         supplier: formData.supplier as number, // Ensure supplier is a number
-        items: formData.items.map(item => ({
+        items: (formData.items || []).map(item => ({
           product: item.product,
           quantity: item.quantity,
           unitPrice: item.unitPrice,
@@ -695,7 +695,7 @@ const PurchaseFormModal = ({ isOpen, onClose, onSubmit, initialData }: PurchaseF
                 </div>
               </div>
 
-              {formData.items.length > 0 ? (
+              {(formData.items || []).length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="min-w-full divide-y divide-gray-200">
                       <thead className="bg-gray-50">
@@ -716,7 +716,7 @@ const PurchaseFormModal = ({ isOpen, onClose, onSubmit, initialData }: PurchaseF
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {formData.items.map((item, index) => (
+                        {(formData.items || []).map((item, index) => (
                           <tr key={index} className="hover:bg-gray-50">
                             <td className="px-4 py-2 whitespace-nowrap">
                               {(() => {
@@ -817,7 +817,7 @@ const PurchaseFormModal = ({ isOpen, onClose, onSubmit, initialData }: PurchaseF
                 <button
                   type="submit"
                   className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
-                  disabled={isSubmitting || formData.items.length === 0}
+                  disabled={isSubmitting || (formData.items || []).length === 0}
                 >
                   {isSubmitting ? 'Salvando...' : 'Salvar Compra'}
                 </button>

@@ -1,8 +1,10 @@
 package com.example.supply_manager.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -33,10 +35,28 @@ public class PurchaseOrder {
     private Double totalAmount;
 
     @OneToMany(mappedBy = "purchaseOrder", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PurchaseOrderItem> items;
+    @JsonIgnore
+    private List<PurchaseOrderItem> items = new ArrayList<>();
 
     // marcador de que chegou tudo
     private Boolean fullyReceived;
+
+    // Helper methods for bidirectional relationship
+    public void addItem(PurchaseOrderItem item) {
+        items.add(item);
+        item.setPurchaseOrder(this);
+    }
+
+    public void removeItem(PurchaseOrderItem item) {
+        items.remove(item);
+        item.setPurchaseOrder(null);
+    }
+
+    public void clearItems() {
+        if (items != null) {
+            items.clear();
+        }
+    }
 
     // getters e setters
 }

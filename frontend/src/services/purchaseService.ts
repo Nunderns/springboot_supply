@@ -18,7 +18,7 @@ export interface PurchaseDTO {
   expectedDeliveryDate?: string;
   deliveryDate?: string;
   status: 'PENDING' | 'DELIVERED' | 'CANCELED';
-  items: PurchaseItemDTO[];
+  items?: PurchaseItemDTO[];
   total: number;
   notes?: string;
   createdAt?: string;

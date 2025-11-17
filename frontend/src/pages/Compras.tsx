@@ -187,7 +187,7 @@ export default function Compras() {
                       <div className="text-sm text-gray-900">
                         {typeof purchase.supplier === 'object' 
                           ? purchase.supplier.name 
-                          : 'Fornecedor não encontrado'}
+                          : purchase.supplier || 'Fornecedor não encontrado'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -202,14 +202,14 @@ export default function Compras() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {purchase.items.length} ite{purchase.items.length !== 1 ? 'ns' : 'm'}
+                        {purchase.items ? `${purchase.items.length} ite${purchase.items.length !== 1 ? 'ns' : 'm'}` : '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       {new Intl.NumberFormat('pt-BR', {
                         style: 'currency',
                         currency: 'BRL'
-                      }).format(purchase.total)}
+                      }).format(purchase.total || 0)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       {getStatusBadge(purchase.status)}

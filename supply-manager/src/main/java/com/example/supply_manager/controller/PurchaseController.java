@@ -288,14 +288,11 @@ public class PurchaseController {
             }
         }
         
-        // Limpar itens antigos (cascade vai cuidar disso)
-        if (order.getItems() != null) {
-            order.getItems().clear();
-        }
+        // Limpar itens antigos usando método helper
+        order.clearItems();
         
         // Adicionar novos itens
         double total = 0.0;
-        List<PurchaseOrderItem> items = new ArrayList<>();
         
         if (request.items != null) {
             for (PurchaseItemRequest itemReq : request.items) {
@@ -317,18 +314,16 @@ public class PurchaseController {
                     item.setProduct(product);
                 }
                 
-                item.setQuantity(itemReq.quantity != null ? itemReq.quantity.doubleValue() : 0.0);
+                item.setQuantity(itemReq.quantity != null ? itemReq.quantity : 0.0);
                 item.setUnitPrice(itemReq.unitPrice);
-                item.setPurchaseOrder(order);
+                
+                order.addItem(item);
                 
                 double itemTotal = item.getQuantity() * (item.getUnitPrice() != null ? item.getUnitPrice() : 0.0);
                 total += itemTotal;
-                
-                items.add(item);
             }
         }
         
-        order.setItems(items);
         order.setTotalAmount(total);
         
         PurchaseOrder saved = orderRepo.save(order);
