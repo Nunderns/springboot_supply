@@ -49,10 +49,13 @@ public class DashboardController {
                 purchaseOrderRepository.countByStatus(PurchaseOrder.Status.ISSUED);
         metrics.put("comprasPendentes", comprasPendentesCount);
 
-        // Estoque total (por enquanto ainda 0; se tiver campo de quantidade depois dá pra ajustar)
-        metrics.put("estoqueTotal", 0);
+        // 🔹 Estoque total: quantidade de produtos ativos
+        int estoqueTotal = (int) productRepository.findAll().stream()
+                .filter(Product::isActive)
+                .count();
+        metrics.put("estoqueTotal", estoqueTotal);
 
-        // 🔹 Valor em entregas futuras = SOMENTE DRAFT + ISSUED (como já estava antes)
+        // 🔹 Valor em entregas futuras = SOMENTE DRAFT + ISSUED
         double valorEntregasFuturas = 0.0;
         for (PurchaseOrder.Status status : new PurchaseOrder.Status[]{
                 PurchaseOrder.Status.DRAFT,
@@ -65,7 +68,6 @@ public class DashboardController {
         metrics.put("valorEntregasFuturas", valorEntregasFuturas);
 
         // 🔹 Valor total em estoque = pedidos NÃO pendentes
-        // (tudo que não é DRAFT nem ISSUED é considerado "entregue/concluído")
         double valorEstoque = purchaseOrderRepository.findAll().stream()
                 .filter(po ->
                         po.getStatus() != PurchaseOrder.Status.DRAFT &&
