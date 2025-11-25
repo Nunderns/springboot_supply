@@ -8,7 +8,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
 import Sidebar from "./components/Sidebar";
-import Topbar from "./components/Topbar";
+
 
 function App() {
   return (
@@ -28,7 +28,7 @@ function App() {
         <div className="flex h-screen w-full bg-slate-50">
           <Sidebar />
           <div className="flex-1 flex flex-col min-w-0">
-            <Topbar />
+            
             <main className="flex-1 overflow-y-auto p-4 w-full">
               <Dashboard />
             </main>
@@ -39,7 +39,7 @@ function App() {
         <div className="flex h-screen w-full bg-slate-50">
           <Sidebar />
           <div className="flex-1 flex flex-col min-w-0">
-            <Topbar />
+            
             <main className="flex-1 overflow-y-auto p-4 w-full">
               <Fornecedores />
             </main>
@@ -50,7 +50,7 @@ function App() {
         <div className="flex h-screen w-full bg-slate-50">
           <Sidebar />
           <div className="flex-1 flex flex-col min-w-0">
-            <Topbar />
+            
             <main className="flex-1 overflow-y-auto p-4 w-full">
               <Compras />
             </main>
@@ -61,7 +61,7 @@ function App() {
         <div className="flex h-screen w-full bg-slate-50">
           <Sidebar />
           <div className="flex-1 flex flex-col min-w-0">
-            <Topbar />
+            
             <main className="flex-1 overflow-y-auto p-4 w-full">
               <Produtos />
             </main>
@@ -72,7 +72,7 @@ function App() {
         <div className="flex h-screen w-full bg-slate-50">
           <Sidebar />
           <div className="flex-1 flex flex-col min-w-0">
-            <Topbar />
+            
             <main className="flex-1 overflow-y-auto p-4 w-full">
               <Estoque />
             </main>
