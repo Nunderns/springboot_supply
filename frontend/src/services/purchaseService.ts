@@ -55,10 +55,14 @@ export const purchaseService = {
     return response.data;
   },
 
-  async updateStatus(id: number, status: PurchaseDTO['status']) {
-    const response = await api.patch(`/purchases/${id}/status`, { status });
-    return response.data;
-  },
+async updateStatus(id: number, status: PurchaseDTO['status']) {
+  const response = await api.patch(`/purchases/${id}/status`, { status }, {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  });
+  return response.data;
+},
 
   async getBySupplier(supplierId: number) {
     const response = await api.get(`/purchases/supplier/${supplierId}`);

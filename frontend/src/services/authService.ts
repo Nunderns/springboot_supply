@@ -15,8 +15,14 @@ export interface RegisterRequest {
   phone?: string;
 }
 
+export interface RefreshTokenResponse {
+  accessToken: string;
+  tokenType: string;
+}
+
 export interface AuthResponse {
   token: string;
+  refreshToken?: string;
   type: string;
   id: number;
   username: string;
@@ -61,5 +67,35 @@ export const authService = {
 
   isAuthenticated(): boolean {
     return !!this.getToken();
+  },
+
+  async refreshToken(): Promise<string | null> {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await axios.post<RefreshTokenResponse>(
+        `${API_URL}/refresh-token`,
+        {},
+        {
+          headers: {
+            'Authorization': `Bearer ${refreshToken}`
+          }
+        }
+      );
+
+      const { accessToken } = response.data;
+      if (accessToken) {
+        localStorage.setItem('token', accessToken);
+        return accessToken;
+      }
+      return null;
+    } catch (error) {
+      console.error('Error refreshing token:', error);
+      this.logout();
+      return null;
+    }
   }
 };
