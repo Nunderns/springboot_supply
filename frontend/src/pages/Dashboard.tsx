@@ -1,5 +1,17 @@
 import { useState, useEffect } from 'react';
 import { authService } from '../services/authService';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from 'recharts';
 
 interface DashboardMetrics {
   fornecedores: number;
@@ -37,7 +49,6 @@ export default function Dashboard() {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        // Prevent caching to always get fresh data
         cache: 'no-store'
       });
 
@@ -66,7 +77,7 @@ export default function Dashboard() {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
-    }).format(value);
+    }).format(value || 0);
   };
 
   // Formata a data de atualização
@@ -81,9 +92,25 @@ export default function Dashboard() {
     }).format(date);
   };
 
+  // Dados para gráfico de barras (volume de itens)
+  const volumeData = [
+    { name: 'Fornecedores', value: metrics.fornecedores },
+    { name: 'Produtos', value: metrics.produtos },
+    { name: 'Compras Pendentes', value: metrics.comprasPendentes },
+    { name: 'Itens em Estoque', value: metrics.estoqueTotal }
+  ];
+
+  // Dados para gráfico de pizza (valores financeiros)
+  const financeData = [
+    { name: 'Valor em Estoque', value: metrics.valorEstoque },
+    { name: 'Entregas Futuras', value: metrics.valorEntregasFuturas }
+  ];
+
+  const pieColors = ['#2563eb', '#16a34a']; // azul e verde
+
   return (
-    <div className="p-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4">
+    <div className="p-4 space-y-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
           <h1 className="text-2xl font-bold text-gray-800">Dashboard</h1>
           <p className="text-sm text-gray-600">Visão geral do sistema</p>
@@ -133,6 +160,7 @@ export default function Dashboard() {
         </div>
       ) : (
         <>
+          {/* Cards de métricas principais */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <MetricCard
               title="Fornecedores"
@@ -143,7 +171,7 @@ export default function Dashboard() {
                 </svg>
               }
             />
-            
+
             <MetricCard
               title="Produtos"
               value={metrics.produtos.toLocaleString('pt-BR')}
@@ -153,7 +181,7 @@ export default function Dashboard() {
                 </svg>
               }
             />
-            
+
             <MetricCard
               title="Compras Pendentes"
               value={metrics.comprasPendentes.toLocaleString('pt-BR')}
@@ -163,7 +191,7 @@ export default function Dashboard() {
                 </svg>
               }
             />
-            
+
             <MetricCard
               title="Itens em Estoque"
               value={metrics.estoqueTotal.toLocaleString('pt-BR')}
@@ -175,6 +203,7 @@ export default function Dashboard() {
             />
           </div>
 
+          {/* Cards financeiros */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-4">
             <MetricCard
               title="Valor Total em Estoque"
@@ -186,7 +215,7 @@ export default function Dashboard() {
                 </svg>
               }
             />
-            
+
             <MetricCard
               title="Valor em Entregas Futuras"
               value={formatCurrency(metrics.valorEntregasFuturas)}
@@ -197,6 +226,54 @@ export default function Dashboard() {
                 </svg>
               }
             />
+          </div>
+
+          {/* Gráficos */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+            {/* Gráfico de barras */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+              <h2 className="text-sm font-semibold text-gray-700 mb-3">
+                Visão Geral de Quantidades
+              </h2>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={volumeData} margin={{ top: 10, right: 10, left: -20, bottom: 20 }}>
+                    <XAxis dataKey="name" angle={-15} textAnchor="end" height={50} />
+                    <YAxis allowDecimals={false} />
+                    <Tooltip />
+                    <Bar dataKey="value" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Gráfico de pizza */}
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+              <h2 className="text-sm font-semibold text-gray-700 mb-3">
+                Distribuição Financeira
+              </h2>
+              <div className="h-64 flex justify-center items-center">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={financeData}
+                      dataKey="value"
+                      nameKey="name"
+                      outerRadius={80}
+                      label={({ name, value }) => `${name}: ${formatCurrency(value)}`}
+                    >
+                      {financeData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={pieColors[index % pieColors.length]} />
+                      ))}
+                    </Pie>
+                    <Legend />
+                    <Tooltip
+                      formatter={(value: number) => formatCurrency(value)}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </>
       )}
