@@ -62,7 +62,28 @@ export function SupplierFormModal({ isOpen, onClose, onSubmit, initialData }: Su
     setError(null);
   }, [initialData, isOpen]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  // Função para formatar CNPJ: 00.000.000/0000-00
+  const formatCNPJ = (cnpj: string) => {
+    if (!cnpj) return '';
+    
+    // Remove tudo que não for dígito
+    const numbers = cnpj.replace(/\D/g, '');
+    
+    // Limita a 14 dígitos
+    const limited = numbers.slice(0, 14);
+    
+    // Aplica a máscara
+    if (limited.length <= 2) return limited;
+    if (limited.length <= 5) return `${limited.slice(0, 2)}.${limited.slice(2)}`;
+    if (limited.length <= 8) return `${limited.slice(0, 2)}.${limited.slice(2, 5)}.${limited.slice(5)}`;
+    if (limited.length <= 12) return `${limited.slice(0, 2)}.${limited.slice(2, 5)}.${limited.slice(5, 8)}/${limited.slice(8)}`;
+    return `${limited.slice(0, 2)}.${limited.slice(2, 5)}.${limited.slice(5, 8)}/${limited.slice(8, 12)}-${limited.slice(12, 14)}`;
+  };
+
+  type InputEvent = React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>;
+  type CustomEvent = { target: { name: string; value: string | boolean } };
+
+  const handleChange = (e: InputEvent | CustomEvent) => {
     const { name, value, type } = e.target as HTMLInputElement;
     const checked = type === 'checkbox' ? (e.target as HTMLInputElement).checked : undefined;
     
@@ -123,8 +144,16 @@ export function SupplierFormModal({ isOpen, onClose, onSubmit, initialData }: Su
                 <input
                   type="text"
                   name="cnpj"
-                  value={formData.cnpj}
-                  onChange={handleChange}
+                  value={formatCNPJ(formData.cnpj)}
+                  onChange={(e) => {
+                    // Remove todos os caracteres não numéricos
+                    const rawValue = e.target.value.replace(/\D/g, '');
+                    // Atualiza o estado apenas com números
+                    handleChange({
+                      target: { name: 'cnpj', value: rawValue }
+                    });
+                  }}
+                  maxLength={18}
                   className="w-full p-2 border rounded-md"
                   placeholder="00.000.000/0000-00"
                   required
